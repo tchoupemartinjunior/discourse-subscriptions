@@ -5,7 +5,7 @@ import I18n from "I18n";
 import { not } from "@ember/object/computed";
 import discourseComputed from "discourse-common/utils/decorators";
 import bootbox from "bootbox";
-import showModal from "discourse/lib/show-modal";
+
 
 
 export default Controller.extend({
@@ -146,7 +146,6 @@ actions: {
       return;
     }
     const planId = this.selectedPlan;
-    console.log(planId);
     const subscription = Subscription.payment_intent(planId);
     subscription.then((result) => {
       if (result.status == "requires_action") {
@@ -160,7 +159,7 @@ actions: {
     })
 
     this.set("loading", false);
-    // window.location.replace("instructions");
+ 
   },
 
   stripePaymentHandler() {

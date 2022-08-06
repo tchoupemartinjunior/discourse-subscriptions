@@ -23,6 +23,13 @@ Subscription.reopenClass({
   show(id) {
     return ajax(`/s/${id}`, { method: "get" });
   },
+
+  payment_intent(plan){
+    const data = {
+      plan
+    };
+    return ajax("/s/payment_intent", { method: "post", data });
+  },
 });
 
 export default Subscription;

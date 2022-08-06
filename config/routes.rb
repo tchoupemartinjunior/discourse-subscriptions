@@ -34,10 +34,5 @@ DiscourseSubscriptions::Engine.routes.draw do
   get '/instructions' => 'subscribe#instructions'
 
   post '/hooks' => 'hooks#create'
-  
-
-  
-
-
 
 end
