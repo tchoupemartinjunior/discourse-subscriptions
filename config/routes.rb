@@ -28,5 +28,16 @@ DiscourseSubscriptions::Engine.routes.draw do
   post '/create' => 'subscribe#create'
   post '/finalize' => 'subscribe#finalize'
 
+  # route for the creaton of payment intents
+  post '/payment_intent' => 'subscribe#payment_intent'
+   # route for the payment instructions page
+  get '/instructions' => 'subscribe#instructions'
+
   post '/hooks' => 'hooks#create'
+  
+
+  
+
+
+
 end

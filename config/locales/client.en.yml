@@ -106,7 +106,19 @@ en:
         no_products: There are currently no products available.
         unauthenticated: Log in or create an account to subscribe.
         invalid_coupon: You entered an invalid coupon code. Please try again.
+        choose_payment_method: Choose a payment method
+        bank_transfer_method: Bank Transfer
+        card_method: Credit Card
+        bank_transfer:
+          title: Bank Transfer
+          operation:
+            confirm: Are you sure you want to make the payment?
+            message: Are you sure you want to proceed and receive the instructions for the payment?
+        instructions:
+          title: Instuctions for the payment
+          message: The necessary instructions to finalise the payment have been sent to you by email
         card:
+          payment_title: Credit Card 
           title: Payment
         customer:
           title: Customer Details

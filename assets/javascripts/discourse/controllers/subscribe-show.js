@@ -5,11 +5,18 @@ import I18n from "I18n";
 import { not } from "@ember/object/computed";
 import discourseComputed from "discourse-common/utils/decorators";
 import bootbox from "bootbox";
+import showModal from "discourse/lib/show-modal";
+
 
 export default Controller.extend({
   selectedPlan: null,
   promoCode: null,
   isAnonymous: not("currentUser"),
+  instructions_url: null,
+  isBank: false,
+  isCard: false,
+
+
 
   init() {
     this._super(...arguments);
@@ -20,6 +27,8 @@ export default Controller.extend({
     const elements = this.get("stripe").elements();
 
     this.set("cardElement", elements.create("card", { hidePostalCode: true }));
+    this.set("isBank", false);
+    this.set("isCard", false);
   },
 
   alert(path) {
@@ -27,106 +36,178 @@ export default Controller.extend({
   },
 
   @discourseComputed("model.product.repurchaseable", "model.product.subscribed")
-  canPurchase(repurchaseable, subscribed) {
-    if (!repurchaseable && subscribed) {
-      return false;
+canPurchase(repurchaseable, subscribed) {
+  if (!repurchaseable && subscribed) {
+    return false;
+  }
+  return true;
+},
+
+
+
+createPaymentIntent(plan) {
+  console.log("subscriptions junior");
+  const planId = this.selectedPlan;
+  console.log(planId);
+  const subscription = Subscription.payment_intent(planId);
+  subscription.then((result) => {
+    if (result.status == "requires_action") {
+      const instructions_url = result.next_action.display_bank_transfer_instructions.hosted_instructions_url;
+      console.log((instructions_url));
     }
 
-    return true;
-  },
+  }).catch(e => {
+    console.log(e);
+  })
 
-  createSubscription(plan) {
-    return this.stripe.createToken(this.get("cardElement")).then((result) => {
-      if (result.error) {
-        this.set("loading", false);
+
+},
+
+
+createSubscription(plan) {
+  return this.stripe.createToken(this.get("cardElement")).then((result) => {
+    if (result.error) {
+      this.set("loading", false);
+      return result;
+    } else {
+      const subscription = Subscription.create({
+        source: result.token.id,
+        plan: plan.get("id"),
+        promo: this.promoCode,
+      });
+
+      return subscription.save();
+    }
+  });
+},
+
+handleAuthentication(plan, transaction) {
+  return this.stripe
+    .confirmCardPayment(transaction.payment_intent.client_secret)
+    .then((result) => {
+      if (
+        result.paymentIntent &&
+        result.paymentIntent.status === "succeeded"
+      ) {
         return result;
       } else {
-        const subscription = Subscription.create({
-          source: result.token.id,
-          plan: plan.get("id"),
-          promo: this.promoCode,
-        });
-
-        return subscription.save();
+        this.set("loading", false);
+        bootbox.alert(result.error.message || result.error);
+        return result;
       }
     });
+},
+
+_advanceSuccessfulTransaction(plan) {
+  this.alert("plans.success");
+  this.set("loading", false);
+
+  this.transitionToRoute(
+    plan.type === "recurring"
+      ? "user.billing.subscriptions"
+      : "user.billing.payments",
+    this.currentUser.username.toLowerCase()
+  );
+},
+
+actions: {
+  showConfirmModal() {
+    this.set("showModal",true);
+  },
+  closeModal(){
+    this.set("showModal",false);
   },
 
-  handleAuthentication(plan, transaction) {
-    return this.stripe
-      .confirmCardPayment(transaction.payment_intent.client_secret)
-      .then((result) => {
-        if (
-          result.paymentIntent &&
-          result.paymentIntent.status === "succeeded"
-        ) {
-          return result;
-        } else {
-          this.set("loading", false);
-          bootbox.alert(result.error.message || result.error);
-          return result;
-        }
-      });
-  },
-
-  _advanceSuccessfulTransaction(plan) {
-    this.alert("plans.success");
+  setBankPaymentMethod(){
+    this.set("showModal",false);
+    this.set("loading", true);
+    this.set("isBank", true);
+    this.set("isCard", false);
     this.set("loading", false);
-
-    this.transitionToRoute(
-      plan.type === "recurring"
-        ? "user.billing.subscriptions"
-        : "user.billing.payments",
-      this.currentUser.username.toLowerCase()
-    );
+  },
+  setCardPaymentMethod(){
+    this.set("showModal",false);
+    this.set("loading", true);
+    this.set("isBank", false);
+    this.set("isCard", true);
+    this.set("loading", false);
   },
 
-  actions: {
-    stripePaymentHandler() {
-      this.set("loading", true);
-      const plan = this.get("model.plans")
-        .filterBy("id", this.selectedPlan)
-        .get("firstObject");
+  paymentIntentHandler() {
+    this.set("showModal",false);
+    this.set("loading", true);
+    const plan = this.get("model.plans")
+      .filterBy("id", this.selectedPlan)
+      .get("firstObject");
 
-      if (!plan) {
-        this.alert("plans.validate.payment_options.required");
-        this.set("loading", false);
-        return;
+    if (!plan) {
+      this.alert("plans.validate.payment_options.required");
+      this.set("loading", false);
+      return;
+    }
+    const planId = this.selectedPlan;
+    console.log(planId);
+    const subscription = Subscription.payment_intent(planId);
+    subscription.then((result) => {
+      if (result.status == "requires_action") {
+        const instructions_url = result.next_action.display_bank_transfer_instructions.hosted_instructions_url;
+        bootbox.alert("The necessary instructions to finalise the payment have been sent to you by email.");
+        window.location.replace("instructions");
       }
 
-      let transaction = this.createSubscription(plan);
+    }).catch(e => {
+      console.log(e);
+    })
 
-      transaction
-        .then((result) => {
-          if (result.error) {
-            bootbox.alert(result.error.message || result.error);
-          } else if (
-            result.status === "incomplete" ||
-            result.status === "open"
-          ) {
-            const transactionId = result.id;
-            const planId = this.selectedPlan;
-            this.handleAuthentication(plan, result).then(
-              (authenticationResult) => {
-                if (authenticationResult && !authenticationResult.error) {
-                  return Transaction.finalize(transactionId, planId).then(
-                    () => {
-                      this._advanceSuccessfulTransaction(plan);
-                    }
-                  );
-                }
-              }
-            );
-          } else {
-            this._advanceSuccessfulTransaction(plan);
-          }
-        })
-        .catch((result) => {
-          bootbox.alert(
-            result.jqXHR.responseJSON.errors[0] || result.errorThrown
-          );
-          this.set("loading", false);
-        });
-    },
+    this.set("loading", false);
+    // window.location.replace("instructions");
   },
+
+  stripePaymentHandler() {
+    this.set("loading", true);
+    const plan = this.get("model.plans")
+      .filterBy("id", this.selectedPlan)
+      .get("firstObject");
+
+    if (!plan) {
+      this.alert("plans.validate.payment_options.required");
+      this.set("loading", false);
+      return;
+    }
+
+    let transaction = this.createSubscription(plan);
+
+    transaction
+      .then((result) => {
+        if (result.error) {
+          bootbox.alert(result.error.message || result.error);
+        } else if (
+          result.status === "incomplete" ||
+          result.status === "open"
+        ) {
+          const transactionId = result.id;
+          const planId = this.selectedPlan;
+          this.handleAuthentication(plan, result).then(
+            (authenticationResult) => {
+              if (authenticationResult && !authenticationResult.error) {
+                return Transaction.finalize(transactionId, planId).then(
+                  () => {
+                    this._advanceSuccessfulTransaction(plan);
+                  }
+                );
+              }
+            }
+          );
+        } else {
+          this._advanceSuccessfulTransaction(plan);
+        }
+      })
+      .catch((result) => {
+        bootbox.alert(
+          result.jqXHR.responseJSON.errors[0] || result.errorThrown
+        );
+        this.set("loading", false);
+      });
+  },
+},
 });

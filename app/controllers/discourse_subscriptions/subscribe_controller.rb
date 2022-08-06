@@ -7,6 +7,55 @@ module DiscourseSubscriptions
     before_action :set_api_key
     requires_login except: [:index, :contributors, :show]
 
+    def instructions
+    end
+
+    
+    def payment_intent
+      params.require([:plan])
+      begin
+        customer = payment_intent_find_or_create_customer()
+        plan = ::Stripe::Price.retrieve(params[:plan])
+        product=plan[:product] if plan[:product]
+        group=plan[:metadata][:group_name]
+        nickname = plan[:nickname]
+        unit_amount=plan[:unit_amount] if plan[:unit_amount]
+       
+
+        price =  unit_amount.to_i
+        bk_payment_intent = ::Stripe::PaymentIntent.create({
+          amount: price,
+          currency: SiteSetting.discourse_subscriptions_currency,
+          customer: customer[:id],
+          description: nickname,
+          metadata:{
+             product:product,
+             group_name:group,
+             nickname:nickname,
+             unit_amount:unit_amount
+         
+            },
+          payment_method_types: ["customer_balance"],
+          payment_method_data: {
+            type: "customer_balance",
+          },
+          payment_method_options: {
+            customer_balance: {
+              funding_type: "bank_transfer",
+              bank_transfer: {
+                type: "eu_bank_transfer",
+                eu_bank_transfer: {
+                  country: "FR",
+                }
+              },
+            },
+          },
+          confirm: true
+        })
+      render json: bk_payment_intent
+      end
+    end
+
     def index
       begin
         product_ids = Product.all.pluck(:external_id)
@@ -182,6 +231,19 @@ module DiscourseSubscriptions
         ::Stripe::Customer.create(
           email: current_user.email,
           source: source
+        )
+      end
+    end
+
+    # create customer for payment intent
+    def payment_intent_find_or_create_customer()
+      customer = Customer.find_by_user_id(current_user.id)
+
+      if customer.present?
+        ::Stripe::Customer.retrieve(customer.customer_id)
+      else
+        ::Stripe::Customer.create(
+          email: current_user.email,
         )
       end
     end
