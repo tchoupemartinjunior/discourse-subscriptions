@@ -5,7 +5,7 @@ import I18n from "I18n";
 import { not } from "@ember/object/computed";
 import discourseComputed from "discourse-common/utils/decorators";
 import bootbox from "bootbox";
-
+import showModal from "discourse/lib/show-modal";
 
 
 export default Controller.extend({
@@ -29,6 +29,7 @@ export default Controller.extend({
     this.set("cardElement", elements.create("card", { hidePostalCode: true }));
     this.set("isBank", false);
     this.set("isCard", false);
+    this.set("isWesternUnion", false);
   },
 
   alert(path) {
@@ -46,7 +47,7 @@ canPurchase(repurchaseable, subscribed) {
 
 
 createPaymentIntent(plan) {
-  console.log("subscriptions junior");
+
   const planId = this.selectedPlan;
   console.log(planId);
   const subscription = Subscription.payment_intent(planId);
@@ -109,6 +110,10 @@ _advanceSuccessfulTransaction(plan) {
     this.currentUser.username.toLowerCase()
   );
 },
+ sleep(milliseconds) {
+  const start = Date.now();
+  while (Date.now() - start < milliseconds);
+},
 
 actions: {
   showConfirmModal() {
@@ -132,10 +137,20 @@ actions: {
     this.set("isCard", true);
     this.set("loading", false);
   },
-
-  paymentIntentHandler() {
+  setWesternUnionMethod(){
     this.set("showModal",false);
     this.set("loading", true);
+    this.set("isBank", false);
+    this.set("isCard", false);
+    this.set("isWesternUnion", false);
+    this.set("loading", false);
+    this.alert("subscribe.instructions.western_union_message");
+
+  },
+
+  paymentIntentHandler() {
+    this.set("loading", true);
+    this.set("showModal",false);
     const plan = this.get("model.plans")
       .filterBy("id", this.selectedPlan)
       .get("firstObject");
@@ -146,20 +161,21 @@ actions: {
       return;
     }
     const planId = this.selectedPlan;
+    console.log(planId);
     const subscription = Subscription.payment_intent(planId);
     subscription.then((result) => {
       if (result.status == "requires_action") {
         const instructions_url = result.next_action.display_bank_transfer_instructions.hosted_instructions_url;
-        bootbox.alert("The necessary instructions to finalise the payment have been sent to you by email.");
-        window.location.replace("instructions");
+        this.alert("subscribe.instructions.message");
+        //window.location.replace("instructions");
+       
       }
 
     }).catch(e => {
       console.log(e);
+      this.set("loading", false);
     })
 
-    this.set("loading", false);
- 
   },
 
   stripePaymentHandler() {

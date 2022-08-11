@@ -108,8 +108,22 @@ fr:
         no_products: Il n'y a actuellement aucun produit disponible.
         unauthenticated: Connectez-vous ou créez un compte pour vous abonner.
         invalid_coupon: Vous avez saisi un code de coupon invalide. Veuillez réessayer.
+        choose_payment_method: Choisissez un mode de paiement
+        bank_transfer_method: Virement bancaire
+        card_method: Carte bancaire
+        western_union_method: Western Union
+        bank_transfer:
+          title: Virement bancaire
+          operation:
+            confirm: Are you sure you want to make the payment?
+            message: Êtes-vous sûr de vouloir continuer et recevoir les instructions pour le paiement?
+        instructions:
+          title: Instructions pour le paiement
+          message: <h1> Instructions pour le paiement </h1><h3>Les instructions nécessaires pour effectuer le paiement vous ont été envoyées par e-mail.</h3>
+          western_union_message: <h1> Instruction pour les paiements par Western Union</h1> Si vous souhaitez payer par Western Union, envoyez un message WhatsApp au ':' <br><b>+33 7 83 23 56 08</b>.<br> L'utilisation de Western Union comme moyen de paiement va entraîner des frais supplémentaires (+20 euros), sans compter les frais d'envoie de Western Union.<br> Western Union devrait donc être le DERNIER RECOURS
         card:
           title: Paiement
+          payment_title: Carte bancaire
         customer:
           title: Informations du client
         promo_code: Coupon

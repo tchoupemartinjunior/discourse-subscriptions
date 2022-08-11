@@ -109,6 +109,7 @@ en:
         choose_payment_method: Choose a payment method
         bank_transfer_method: Bank Transfer
         card_method: Credit Card
+        western_union_method: Western Union
         bank_transfer:
           title: Bank Transfer
           operation:
@@ -116,7 +117,8 @@ en:
             message: Are you sure you want to proceed and receive the instructions for the payment?
         instructions:
           title: Instuctions for the payment
-          message: The necessary instructions to finalise the payment have been sent to you by email
+          message: <h1> Instructions for the payment</h1><h3>The necessary instructions to finalise the payment have been sent to you by email</h3>
+          western_union_message: <h1>Instruction for payments by Western Union</h1> If you wish to pay by Western Union, send a WhatsApp message to +33 7 83 23 56 08The use of Western Union as a means of payment will result in additional costs (+20 euros), not including the Western Union shipping costs. Western Union should therefore be the LAST RECOURSE
         card:
           payment_title: Credit Card 
           title: Payment

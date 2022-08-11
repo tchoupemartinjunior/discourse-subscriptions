@@ -23,7 +23,9 @@
 
     <hr>
     <h2>{{i18n "discourse_subscriptions.subscribe.choose_payment_method"}}</h2>
-
+{{#if isAnonymous}}
+{{login-required}}
+{{else}}
     {{#ds-button
     disabled=loading
     action=(action "setBankPaymentMethod")
@@ -37,7 +39,15 @@
     class="btn btn-primary"
     label="discourse_subscriptions.subscribe.card_method"
     }}
-    {{/ds-button}}
+    {{/ds-button}}&nbsp;&nbsp;
+    {{#ds-button
+    disabled=loading
+    action=(action "setWesternUnionMethod")
+    class="btn btn-primary"
+    label= "discourse_subscriptions.subscribe.western_union_method"
+    }}{{/ds-button}}
+    
+    {{/if}}
     <hr>
     {{#if isBank}}
 
@@ -51,12 +61,13 @@
     {{/if}}
     {{#if showModal}}
     <div>
+      <br>
       {{#d-modal-body
       rawTitle=(i18n
       "discourse_subscriptions.subscribe.bank_transfer.operation.confirm"
       )
       }}
-      <h4>{{i18n "discourse_subscriptions.subscribe.bank_transfer.operation.message"}}</h4>
+      <h3>{{i18n "discourse_subscriptions.subscribe.bank_transfer.operation.message"}}</h3>
       {{/d-modal-body}}
 
       <div class="modal-footer">
@@ -90,7 +101,7 @@
       {{input
       type="text"
       name="promo_code"
-      placeholderKey="discourse_subscriptions.subscribe.promo_code"
+      placeholder="Code promo"
       value=promoCode
       }}
     </div>

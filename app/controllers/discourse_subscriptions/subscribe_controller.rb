@@ -5,12 +5,35 @@ module DiscourseSubscriptions
     include DiscourseSubscriptions::Stripe
     include DiscourseSubscriptions::Group
     before_action :set_api_key
-    requires_login except: [:index, :contributors, :show]
+    protect_from_forgery except: :hooks
+    requires_login except: [:index, :hooks, :contributors, :show]
 
     def instructions
     end
 
+    def hooks
+        event = nil
+        payload = request.body.read
+        sig_header = request.env['HTTP_STRIPE_SIGNATURE']
+        webhook_secret = SiteSetting.discourse_subscriptions_webhook_secret
+      begin 
+        event = ::Stripe::Webhook.construct_event(payload, sig_header,  webhook_secret)
+        print "***************************payment TCHOUPE**************************************************************************************************************************************"
     
+
+      case event[:type]
+      when 'payment_intent.succeeded'
+        print "***************************payment TCHOUPE**************************************************************************************************************************************"
+      
+      else
+        print "***************************payment TCHOUPE**************************************************************************************************************************************"
+      end
+      status 200
+    end
+    end
+
+   
+
     def payment_intent
       params.require([:plan])
       begin
@@ -52,6 +75,8 @@ module DiscourseSubscriptions
           },
           confirm: true
         })
+        print "***************************payment TCHOUPE**************************************************************************************************************************************"
+        
       render json: bk_payment_intent
       end
     end
