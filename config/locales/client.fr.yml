@@ -116,11 +116,13 @@ fr:
           title: Virement bancaire
           operation:
             confirm: Are you sure you want to make the payment?
-            message: Êtes-vous sûr de vouloir continuer et recevoir les instructions pour le paiement?
+            message: Voulez vous continuer et recevoir les instructions pour le paiement?
+            continue: Oui continuer
+            cancel: Annuler
         instructions:
           title: Instructions pour le paiement
           message: <h1> Instructions pour le paiement </h1><h3>Les instructions nécessaires pour effectuer le paiement vous ont été envoyées par e-mail.</h3>
-          western_union_message: <h1> Instruction pour les paiements par Western Union</h1> Si vous souhaitez payer par Western Union, envoyez un message WhatsApp au ':' <br><b>+33 7 83 23 56 08</b>.<br> L'utilisation de Western Union comme moyen de paiement va entraîner des frais supplémentaires (+20 euros), sans compter les frais d'envoie de Western Union.<br> Western Union devrait donc être le DERNIER RECOURS
+          western_union_message: <h1> Instruction pour les paiements par Western Union</h1> Si vous souhaitez payer par Western Union, contactez le ':' <br><b>+33 7 83 23 56 08 par Whatsapp</b>.<br> L'utilisation de Western Union comme moyen de paiement va entraîner des frais supplémentaires (+20 euros), sans compter le coût d'envoie de Western Union.<br> Western Union devrait donc être le DERNIER RECOURS
         card:
           title: Paiement
           payment_title: Carte bancaire

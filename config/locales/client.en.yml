@@ -115,6 +115,8 @@ en:
           operation:
             confirm: Are you sure you want to make the payment?
             message: Are you sure you want to proceed and receive the instructions for the payment?
+            continue: Yes continue
+            cancel: Cancel
         instructions:
           title: Instuctions for the payment
           message: <h1> Instructions for the payment</h1><h3>The necessary instructions to finalise the payment have been sent to you by email</h3>

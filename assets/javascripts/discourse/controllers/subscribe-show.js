@@ -123,13 +123,13 @@ actions: {
     this.set("showModal",false);
   },
 
-  setBankPaymentMethod(){
+  /*setBankPaymentMethod(){
     this.set("showModal",false);
     this.set("loading", true);
     this.set("isBank", true);
     this.set("isCard", false);
     this.set("loading", false);
-  },
+  },*/
   setCardPaymentMethod(){
     this.set("showModal",false);
     this.set("loading", true);

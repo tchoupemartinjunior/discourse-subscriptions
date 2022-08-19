@@ -28,7 +28,7 @@
 {{else}}
     {{#ds-button
     disabled=loading
-    action=(action "setBankPaymentMethod")
+    action=(action "showConfirmModal")
     class="btn btn-primary"
     label= "discourse_subscriptions.subscribe.bank_transfer_method"
     }}
@@ -49,25 +49,17 @@
     
     {{/if}}
     <hr>
-    {{#if isBank}}
-
-    <h3>{{i18n "discourse_subscriptions.subscribe.bank_transfer.title"}}</h3>
-    {{d-button
-    disabled=loading
-    action=(action "showConfirmModal")
-    class="btn btn-primary btn-payment"
-    label="discourse_subscriptions.plans.payment_button"
-    }}
-    {{/if}}
-    {{#if showModal}}
+    
+    {{#if showModal}} 
     <div>
-      <br>
+       <h3>{{i18n "discourse_subscriptions.subscribe.bank_transfer.title"}}</h3>
+  
       {{#d-modal-body
       rawTitle=(i18n
       "discourse_subscriptions.subscribe.bank_transfer.operation.confirm"
       )
       }}
-      <h3>{{i18n "discourse_subscriptions.subscribe.bank_transfer.operation.message"}}</h3>
+      <h4>{{i18n "discourse_subscriptions.subscribe.bank_transfer.operation.message"}}</h4>
       {{/d-modal-body}}
 
       <div class="modal-footer">
@@ -75,12 +67,11 @@
         {{loading-spinner}}
         {{else}}
         {{d-button
-        label="yes_value"
+        label="discourse_subscriptions.subscribe.bank_transfer.operation.continue"
         action= (action "paymentIntentHandler")
-        icon="times"
         class="btn-danger"
         }}
-        {{d-button label="no_value" action=(action "closeModal")}}
+        {{d-button label="discourse_subscriptions.subscribe.bank_transfer.operation.cancel" action=(action "closeModal")}}
         {{/if}}
       </div>
     </div>
