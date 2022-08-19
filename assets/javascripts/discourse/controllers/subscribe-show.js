@@ -110,10 +110,6 @@ _advanceSuccessfulTransaction(plan) {
     this.currentUser.username.toLowerCase()
   );
 },
- sleep(milliseconds) {
-  const start = Date.now();
-  while (Date.now() - start < milliseconds);
-},
 
 actions: {
   showConfirmModal() {
@@ -123,13 +119,13 @@ actions: {
     this.set("showModal",false);
   },
 
-  /*setBankPaymentMethod(){
-    this.set("showModal",false);
+  setBankPaymentMethod(){
+    this.set("showModal",true);
     this.set("loading", true);
     this.set("isBank", true);
     this.set("isCard", false);
     this.set("loading", false);
-  },*/
+  },
   setCardPaymentMethod(){
     this.set("showModal",false);
     this.set("loading", true);
