@@ -108,6 +108,10 @@ fr:
         no_products: Il n'y a actuellement aucun produit disponible.
         unauthenticated: Connectez-vous ou créez un compte pour vous abonner.
         invalid_coupon: Vous avez saisi un code de coupon invalide. Veuillez réessayer.
+        user_conditions_error_msg: Acceptez les conditions générales pour continuer
+        i_have_read: J'ai lu et j'accepte les
+        conditions_pass_prive: conditions générales d'utilisation
+        pass_prive: du Passe Privé
         choose_payment_method: Choisissez un mode de paiement
         bank_transfer_method: Virement bancaire
         card_method: Carte bancaire

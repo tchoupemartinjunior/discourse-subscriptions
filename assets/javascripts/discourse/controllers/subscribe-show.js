@@ -5,7 +5,7 @@ import I18n from "I18n";
 import { not } from "@ember/object/computed";
 import discourseComputed from "discourse-common/utils/decorators";
 import bootbox from "bootbox";
-import showModal from "discourse/lib/show-modal";
+import showWesternUnionModal from "discourse/lib/show-modal";
 
 
 export default Controller.extend({
@@ -30,6 +30,7 @@ export default Controller.extend({
     this.set("isBank", false);
     this.set("isCard", false);
     this.set("isWesternUnion", false);
+    this.set("userConditionsAccepted", false);
   },
 
   alert(path) {
@@ -110,68 +111,90 @@ _advanceSuccessfulTransaction(plan) {
     this.currentUser.username.toLowerCase()
   );
 },
-
+checkUserCondition(value){
+  if(!value){
+    this.set("showUserConditionErrorMsg",true);
+  }
+  else{
+    this.set("showUserConditionErrorMsg",false);
+  }
+},
 actions: {
+  toogleUserConditions(value){
+    this.set("userConditionsAccepted", value);
+  },
   showConfirmModal() {
-    this.set("showModal",true);
+    this.set("showWesternUnionModal",true);
   },
   closeModal(){
-    this.set("showModal",false);
+    this.set("showWesternUnionModal",false);
   },
 
   setBankPaymentMethod(){
-    this.set("showModal",true);
-    this.set("loading", true);
-    this.set("isBank", true);
-    this.set("isCard", false);
-    this.set("loading", false);
+     this.set("isCard", false);
+    this.checkUserCondition(this.userConditionsAccepted);
+    if(this.userConditionsAccepted){
+      this.set("showWesternUnionModal",true);
+      this.set("loading", true);
+      this.set("isBank", true);
+     
+      this.set("loading", false);
+    }
   },
   setCardPaymentMethod(){
-    this.set("showModal",false);
-    this.set("loading", true);
     this.set("isBank", false);
-    this.set("isCard", true);
-    this.set("loading", false);
+    this.checkUserCondition(this.userConditionsAccepted);
+    if(this.userConditionsAccepted){
+      this.set("showWesternUnionModal",false);
+      this.set("loading", true);
+      this.set("isCard", true);
+      this.set("loading", false);
+    }
+    
   },
   setWesternUnionMethod(){
-    this.set("showModal",false);
-    this.set("loading", true);
-    this.set("isBank", false);
-    this.set("isCard", false);
-    this.set("isWesternUnion", false);
-    this.set("loading", false);
-    this.alert("subscribe.instructions.western_union_message");
-
+    this.checkUserCondition(this.userConditionsAccepted);
+    if(this.userConditionsAccepted){
+      this.set("showWesternUnionModal",false);
+      this.set("loading", true);
+      this.set("isBank", false);
+      this.set("isCard", false);
+      this.set("loading", false);
+      this.alert("subscribe.instructions.western_union_message");  
+    }
+   
   },
 
   paymentIntentHandler() {
-    this.set("loading", true);
-    this.set("showModal",false);
-    const plan = this.get("model.plans")
-      .filterBy("id", this.selectedPlan)
-      .get("firstObject");
+    this.checkUserCondition(this.userConditionsAccepted);
+    if(this.userConditionsAccepted){
+      this.set("loading", true);
+      this.set("showWesternUnionModal",false);
+      const plan = this.get("model.plans")
+        .filterBy("id", this.selectedPlan)
+        .get("firstObject");
 
-    if (!plan) {
-      this.alert("plans.validate.payment_options.required");
-      this.set("loading", false);
-      return;
-    }
-    const planId = this.selectedPlan;
-    console.log(planId);
-    const subscription = Subscription.payment_intent(planId);
-    subscription.then((result) => {
-      if (result.status == "requires_action") {
-        const instructions_url = result.next_action.display_bank_transfer_instructions.hosted_instructions_url;
-        this.alert("subscribe.instructions.message");
-        //window.location.replace("instructions");
-       
+      if (!plan) {
+        this.alert("plans.validate.payment_options.required");
+        this.set("loading", false);
+        return;
       }
+      const planId = this.selectedPlan;
+      console.log(planId);
+      const subscription = Subscription.payment_intent(planId);
+      subscription.then((result) => {
+        if (result.status == "requires_action") {
+          const instructions_url = result.next_action.display_bank_transfer_instructions.hosted_instructions_url;
+          this.alert("subscribe.instructions.message");
+          //window.location.replace("instructions");
+        
+        }
 
-    }).catch(e => {
-      console.log(e);
-      this.set("loading", false);
-    })
-
+      }).catch(e => {
+        console.log(e);
+        this.set("loading", false);
+      })
+    }
   },
 
   stripePaymentHandler() {

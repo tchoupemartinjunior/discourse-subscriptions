@@ -20,7 +20,12 @@
     <hr>
 
     {{payment-options plans=model.plans selectedPlan=selectedPlan}}
-
+   <p>
+    <br><input type="checkbox" onchange={{action "toogleUserConditions" value="target.checked"}}/>{{i18n "discourse_subscriptions.subscribe.i_have_read"}}<a href="https://community.world-like-home.com/t/contrat-pass-prive/3641"> {{i18n "discourse_subscriptions.subscribe.conditions_pass_prive"}}</a> <b>{{i18n "discourse_subscriptions.subscribe.pass_prive"}}</b> <br>
+    {{#if showUserConditionErrorMsg}}
+    <span style="color:red">{{i18n "discourse_subscriptions.subscribe.user_conditions_error_msg"}}</span>
+    {{/if}}
+  </p>   
     <hr>
     <h2>{{i18n "discourse_subscriptions.subscribe.choose_payment_method"}}</h2>
 {{#if isAnonymous}}
@@ -50,10 +55,10 @@
     {{/if}}
     <hr>
     
-    {{#if showModal}} 
+    {{#if showWesternUnionModal}} 
     <div>
        <h3>{{i18n "discourse_subscriptions.subscribe.bank_transfer.title"}}</h3>
-  
+ 
       {{#d-modal-body
       rawTitle=(i18n
       "discourse_subscriptions.subscribe.bank_transfer.operation.confirm"
@@ -72,7 +77,7 @@
         class="btn-danger"
         }}
         {{d-button label="discourse_subscriptions.subscribe.bank_transfer.operation.cancel" action=(action "closeModal")}}
-        {{/if}}
+         {{/if}}
       </div>
     </div>
     {{/if}}
@@ -80,8 +85,7 @@
 
     {{#if isCard}}
     <h3>{{i18n "discourse_subscriptions.subscribe.card.payment_title"}}</h3>
-
-    {{subscribe-card cardElement=cardElement}}
+     {{subscribe-card cardElement=cardElement}}
 
     {{#if loading}}
     {{loading-spinner}}
